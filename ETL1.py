@@ -10,10 +10,10 @@ load_dotenv()
 
 logging.basicConfig(level=logging.INFO, format= "%(asctime)s - %(message)s")
 
-#table names 
+# table names 
 tables = ['Sales.Customers', 'Sales.Invoices', 'Sales.Orders', 'Warehouse.StockItems','Warehouse.Colors',]
 
-#sqlserver connection
+# Sqlserver connection
 driver = 'ODBC Driver 17 for SQL Server'
 server = 'localhost'
 sqlsrv_db = 'WideWorldImporters'
@@ -22,7 +22,7 @@ sqlsever_con = f"DRIVER={driver};SERVER={server};DATABASE={sqlsrv_db};Trusted_Co
 conn_url = URL.create("mssql+pyodbc", query={"odbc_connect": sqlsever_con})
 sqlsrv_engine = create_engine(conn_url)
 
-#postgres connection
+# PostgreSQL  connection
 uid = os.getenv("PG_UID")
 pwd = os.getenv("PG_PWD")
 host = os.getenv("PG_HOST")
@@ -31,7 +31,7 @@ pg_db = os.getenv("PG_DB")
 pg_url = f'postgresql://{uid}:{pwd}@{host}:5432/{pg_db}'
 pg_engine = create_engine(pg_url)
 
-#extractaction function 
+# Data extraction
 def extract(table):
     try:
         schema_name = table.split(".")[0]
@@ -46,7 +46,7 @@ def extract(table):
     except Exception as e:
         logging.error(f"Data extract error: {e}")
     
-#transformation function
+# Data transformation
 def transform(df, tbl_name):
     try:
         if tbl_name == "StockItems":
@@ -62,7 +62,7 @@ def transform(df, tbl_name):
     except Exception as e:
         logging.error(f"Data transform error: {e}")
 
-#loading function
+# Data loading 
 def load(df, tbl_name):
     try:
         df.to_sql(tbl_name, con=pg_engine, if_exists='replace', index=False)
@@ -70,7 +70,8 @@ def load(df, tbl_name):
 
     except Exception as e:
         logging.error(f"Data load error: {e}")
-    
+
+# Runs the ETL process    
 def etl():
     for table in tables:
         df = extract(table)
